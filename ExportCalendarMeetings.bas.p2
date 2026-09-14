@@ -1,0 +1,134 @@
+ UBound(parts))
+    n = -1
+
+    For i = LBound(parts) To UBound(parts)
+        token = Trim$(parts(i))
+        If Len(token) > 0 Then
+            n = n + 1
+            tmp(n) = token
+        End If
+    Next i
+
+    If n < 0 Then
+        Erase tmp
+        ParseExclusionList = tmp
+        Exit Function
+    End If
+
+    ReDim Preserve tmp(0 To n)
+    ParseExclusionList = tmp
+End Function
+
+Private Function ExclusionCount(ByRef exclusions() As String) As Long
+    On Error GoTo EmptyArr
+    ExclusionCount = UBound(exclusions) - LBound(exclusions) + 1
+    Exit Function
+EmptyArr:
+    ExclusionCount = 0
+End Function
+
+Private Function SubjectMatchesExclusions( _
+    ByVal subject As String, _
+    ByRef exclusions() As String) As Boolean
+
+    Dim i As Long
+
+    If ExclusionCount(exclusions) = 0 Then
+        SubjectMatchesExclusions = False
+        Exit Function
+    End If
+
+    For i = LBound(exclusions) To UBound(exclusions)
+        If Len(exclusions(i)) > 0 Then
+            If InStr(1, subject, exclusions(i), vbTextCompare) > 0 Then
+                SubjectMatchesExclusions = True
+                Exit Function
+            End If
+        End If
+    Next i
+
+    SubjectMatchesExclusions = False
+End Function
+
+Private Function BuildExportSavePath() As String
+    Dim folder As String
+    Dim baseName As String
+    Dim fullPath As String
+    Dim sh As Object
+
+    On Error Resume Next
+    Set sh = CreateObject("WScript.Shell")
+    If Not sh Is Nothing Then
+        folder = sh.SpecialFolders("MyPictures")
+    End If
+    On Error GoTo 0
+
+    If Len(folder) = 0 Then
+        folder = Environ$("USERPROFILE") & "\Pictures"
+    End If
+
+    baseName = "calendar-export-" & Format$(Date, "yyyymmdd")
+    fullPath = folder & "\" & baseName & ".xlsx"
+
+    If Len(Dir$(fullPath)) > 0 Then
+        fullPath = folder & "\" & baseName & "-" & Format$(Now, "hhnnss") & ".xlsx"
+    End If
+
+    BuildExportSavePath = fullPath
+End Function
+
+Private Function FormatDurationMinutes(ByVal minutes As Long) As String
+    Dim hours As Long
+    Dim mins As Long
+
+    If minutes < 0 Then minutes = 0
+    hours = minutes \ 60
+    mins = minutes Mod 60
+    FormatDurationMinutes = CStr(hours) & ":" & Right$("0" & CStr(mins), 2)
+End Function
+
+Private Function AppointmentHasAttendees(ByVal appt As Outlook.AppointmentItem) As Boolean
+    Dim recipient As Outlook.Recipient
+
+    On Error Resume Next
+    If appt.MeetingStatus = olNonMeeting Then
+        AppointmentHasAttendees = False
+        On Error GoTo 0
+        Exit Function
+    End If
+
+    For Each recipient In appt.Recipients
+        If recipient.Type <> olOriginator Then
+            AppointmentHasAttendees = True
+            On Error GoTo 0
+            Exit Function
+        End If
+    Next recipient
+    On Error GoTo 0
+
+    AppointmentHasAttendees = False
+End Function
+
+Private Function IsOutlook2016Family() As Boolean
+    Dim ver As String
+    Dim major As Long
+
+    On Error Resume Next
+    ver = Application.Version
+    major = CLng(Val(ver))
+    On Error GoTo 0
+
+    IsOutlook2016Family = (major = 16)
+End Function
+
+Private Function PickCalendarFolder() As Outlook.MAPIFolder
+    Dim folder As Outlook.MAPIFolder
+
+    Set folder = Application.Session.PickFolder
+    If folder Is Nothing Then
+        Set PickCalendarFolder = Nothing
+        Exit Function
+    End If
+
+    If folder.DefaultItemType <> olAppointmentItem Then
+    

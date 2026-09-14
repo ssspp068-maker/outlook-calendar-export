@@ -1,0 +1,98 @@
+bjectText
+                            xlSheet.Cells(row, 2).Value = Format$(appt.Start, "yyyy-mm-dd hh:nn")
+                            xlSheet.Cells(row, 3).Value = NzStr(appt.Location)
+                            xlSheet.Cells(row, 4).Value = meetingLink
+                            xlSheet.Cells(row, 5).Value = FormatDurationMinutes(CLng(appt.Duration))
+                            xlSheet.Cells(row, 6).Value = AppointmentOrganizer(appt)
+                            xlSheet.Cells(row, 7).Value = AppointmentAttendeesByType(appt, olTo)
+                            xlSheet.Cells(row, 8).Value = AppointmentAttendeesByType(appt, olCC)
+                            xlSheet.Cells(row, 9).Value = attachNames
+                            xlSheet.Cells(row, 10).Value = attachCount
+                            row = row + 1
+                            count = count + 1
+                        End If
+                    End If
+                End If
+            End If
+        End If
+        Set appt = filtered.GetNext
+    Loop
+
+    xlSheet.Columns("A:J").AutoFit
+
+    savePath = BuildExportSavePath()
+    On Error Resume Next
+    xlBook.SaveAs fileName:=savePath, FileFormat:=xlOpenXMLWorkbook
+    If Err.Number <> 0 Then
+        MsgBox RuMsgSaveFail() & vbCrLf & _
+               savePath & vbCrLf & Err.Description, vbExclamation, RuTitleSave()
+        Err.Clear
+    Else
+        MsgBox RuLblCalendar() & calendarFolder.FolderPath & vbCrLf & _
+               RuLblPeriod() & Format$(startDate, "dd.mm.yyyy") & RuEmDash() & _
+               Format$(endDate, "dd.mm.yyyy") & vbCrLf & _
+               RuLblMeetings() & CStr(count) & vbCrLf & _
+               RuLblFile() & savePath, vbInformation, RuTitleDone()
+    End If
+    On Error GoTo 0
+
+    xlApp.DisplayAlerts = True
+End Sub
+
+Private Function AskSubjectExclusions(ByRef exclusions() As String) As Boolean
+    Dim raw As String
+    Dim useSuggested As VbMsgBoxResult
+
+    Erase exclusions
+
+    useSuggested = MsgBox( _
+        RuMsgExclAsk() & vbCrLf & vbCrLf & _
+        RuMsgExclSuggest1() & vbCrLf & _
+        RuMsgExclSuggest2() & vbCrLf & vbCrLf & _
+        RuMsgExclYes() & vbCrLf & _
+        RuMsgExclNo() & vbCrLf & _
+        RuMsgExclCancel(), _
+        vbYesNoCancel Or vbQuestion, RuTitleExcl())
+
+    If useSuggested = vbCancel Then
+        AskSubjectExclusions = False
+        Exit Function
+    End If
+
+    If useSuggested = vbYes Then
+        raw = DefaultExclusionsText()
+    Else
+        raw = ""
+    End If
+
+    raw = InputBox( _
+        RuInpExcl1() & vbCrLf & _
+        RuInpExcl2() & vbCrLf & _
+        RuInpExcl3() & vbCrLf & vbCrLf & _
+        RuInpExcl4() & vbCrLf & _
+        RuInpExcl5(), _
+        RuTitleExcl(), _
+        raw)
+
+    exclusions = ParseExclusionList(raw)
+    AskSubjectExclusions = True
+End Function
+
+Private Function DefaultExclusionsText() As String
+    DefaultExclusionsText = RuWordObed() & ";" & RuWordUzhin() & _
+        ";lunch;dinner;focus time;focus;block;" & _
+        RuWordZanyat() & ";" & RuWordFokus() & _
+        ";out of office;ooo;" & RuWordNn()
+End Function
+
+Private Function ParseExclusionList(ByVal raw As String) As String()
+    Dim normalized As String
+    Dim parts() As String
+    Dim i As Long
+    Dim token As String
+    Dim tmp() As String
+    Dim n As Long
+
+    normalized = Replace(raw, ",", ";")
+    parts = Split(normalized, ";")
+    ReDim tmp(0 To
