@@ -21,15 +21,13 @@ End If
 Set ns = ol.GetNamespace("MAPI")
 ns.Logon "", "", False, False
 Err.Clear
-
 WScript.Sleep 2000
 
 Set vbProj = ol.VBE.ActiveVBProject
 errNum = Err.Number: errDesc = Err.Description: Err.Clear
 If errNum <> 0 Or vbProj Is Nothing Then
   WScript.Echo "No access to Outlook VBA project."
-  WScript.Echo "Enable: File > Options > Trust Center > Trust Center Settings >"
-  WScript.Echo "Macro Settings > Trust access to the VBA project object model"
+  WScript.Echo "Enable Trust access to the VBA project object model"
   On Error Resume Next
   ol.Quit
   WScript.Quit 2
@@ -38,10 +36,8 @@ End If
 For i = vbProj.VBComponents.Count To 1 Step -1
   Set vbComp = vbProj.VBComponents.Item(i)
   If Not vbComp Is Nothing Then
-    If StrComp(vbComp.Name, "ExportCalendarMeetings", vbTextCompare) = 0 Then
-      vbProj.VBComponents.Remove vbComp
-      Err.Clear
-    ElseIf StrComp(vbComp.Name, "RuUiStrings", vbTextCompare) = 0 Then
+    If StrComp(vbComp.Name, "ExportCalendarMeetings", vbTextCompare) = 0 Or _
+       StrComp(vbComp.Name, "RuUiStrings", vbTextCompare) = 0 Then
       vbProj.VBComponents.Remove vbComp
       Err.Clear
     End If
@@ -57,7 +53,6 @@ If errNum <> 0 Then
 End If
 
 WScript.Echo "Module ExportCalendarMeetings imported."
-
 ol.Quit
 WScript.Sleep 1500
 WScript.Quit 0

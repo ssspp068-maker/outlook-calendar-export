@@ -6,14 +6,26 @@ set "UI_DIR=%UserProfile%\AppData\Local\Microsoft\Office"
 set "BAS=%SRC%ExportCalendarMeetings.bas"
 set "VBS=%SRC%import-macro.vbs"
 set "UI=%SRC%olkexplorer.officeUI"
+set "B64=%SRC%ExportCalendarMeetings.bas.gz.b64"
 
-if not exist "%BAS%" (
-  echo [ERROR] Missing ExportCalendarMeetings.bas
+if not exist "%UI%" (
+  echo [ERROR] Missing olkexplorer.officeUI
   pause
   exit /b 1
 )
-if not exist "%UI%" (
-  echo [ERROR] Missing olkexplorer.officeUI
+
+if exist "%B64%" (
+  echo Expanding ExportCalendarMeetings.bas from gz.b64 ...
+  powershell -NoProfile -Command "$b=[Convert]::FromBase64String(((Get-Content -Raw '%B64%') -replace '\s','')); $ms=New-Object IO.MemoryStream(,$b); $gz=New-Object IO.Compression.GzipStream($ms,[IO.Compression.CompressionMode]::Decompress); $out=New-Object IO.FileStream('%BAS%',[IO.FileMode]::Create); $gz.CopyTo($out); $out.Close(); $gz.Close(); $ms.Close()"
+  if errorlevel 1 (
+    echo [ERROR] Failed to expand bas.gz.b64
+    pause
+    exit /b 1
+  )
+)
+
+if not exist "%BAS%" (
+  echo [ERROR] Missing ExportCalendarMeetings.bas
   pause
   exit /b 1
 )
@@ -22,13 +34,11 @@ echo Closing Outlook...
 taskkill /f /im OUTLOOK.EXE >nul 2>&1
 timeout /t 2 /nobreak >nul
 
-rem Allow VBS to import into VBA project
 reg add "HKCU\Software\Microsoft\Office\16.0\Outlook\Security" /v AccessVBOM /t REG_DWORD /d 1 /f >nul
 reg add "HKCU\Software\Microsoft\Office\16.0\Common\Security" /v AccessVBOM /t REG_DWORD /d 1 /f >nul
 
 if not exist "%UI_DIR%" mkdir "%UI_DIR%"
 
-rem Backup existing ribbon UI once (same pattern as working install example)
 IF EXIST "%UI_DIR%\olkexplorer1.officeUI" (
   ECHO Backup olkexplorer1.officeUI already exists
 ) ELSE (
