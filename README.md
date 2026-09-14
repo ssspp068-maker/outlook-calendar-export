@@ -1,19 +1,21 @@
-# Выгрузка встреч календаря (Outlook 2016)
+# outlook-calendar-export
 
-## Если debug / break mode на старом InstallCalendarExportButton
+Makros Outlook: export calendar meetings to Excel.
 
-1. VBA → **Reset** (■ / Run → Reset)
-2. `Alt+F11` → удалите модуль `ExportCalendarMeetings` (Remove → No)
-3. Закройте Outlook и запустите `install.bat`
-4. `Alt+F8` → `ExportManagerCalendarMeetings` → Выполнить
-5. **НИКОГДА** не запускайте `InstallCalendarExportButton`
+## Install
 
-## Установка
+1. Download ZIP (Code -> Download ZIP) and unpack.
+2. Run `install.bat` (closes Outlook, copies ribbon button, imports macro).
+3. Calendar tab button, or always: Alt+F8 -> `ExportManagerCalendarMeetings`.
 
-1. Code → Download ZIP → распаковать
-2. Запустить `install.bat` (соберёт `.bas` из `part0+1+2`, **удалит** старый модуль, импортирует)
-3. Outlook → `Alt+F8` → `ExportManagerCalendarMeetings`
+## Re-import (Cyrillic fix)
 
-Перед повторным импортом удалите старый модуль (или дайте `install.bat` сделать это).
+If InputBox/MsgBox shows mojibake instead of Russian:
 
-Русский UI через `ChrW`/`H()` — не зависит от кодировки `.bas`.
+1. Alt+F11 -> delete module `ExportCalendarMeetings` (Remove -> No).
+2. Run `install.bat` again, or File -> Import File -> `ExportCalendarMeetings.bas`.
+
+Russian UI strings are built with `ChrW`/`H()` so Outlook shows correct Russian regardless of .bas file encoding.
+Expected prompts: "Диапазон дат", "Начало периода...", "Исключения из поиска".
+
+NEVER run `InstallCalendarExportButton`.
