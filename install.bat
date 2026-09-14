@@ -80,7 +80,7 @@ echo ========================================
 echo ALWAYS WORKS:
 echo   Alt+F8 -^> ExportManagerCalendarMeetings -^> Run
 echo.
-echo Button: Calendar tab, group Vygрузка
+echo Button: Calendar tab, group Export
 echo.
 echo NEVER run InstallCalendarExportButton
 echo ========================================
