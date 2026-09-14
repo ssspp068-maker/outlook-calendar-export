@@ -10,8 +10,10 @@
 
 ## Установка
 
-1. Скачайте ZIP и распакуйте
+1. Скачайте ZIP с GitHub (`Code` → Download ZIP) и распакуйте
 2. Запустите `install.bat`
 3. Outlook → `Alt+F8` → `ExportManagerCalendarMeetings`
 
-Русский UI — через `ChrW`/`H()` (не зависит от кодировки файла).
+Перед повторным импортом удалите старый модуль `ExportCalendarMeetings` (или дайте `install.bat` сделать это сам).
+
+Русский UI — через `ChrW`/`H()` (не зависит от кодировки `.bas`).

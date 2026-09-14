@@ -14,9 +14,14 @@ if not exist "%UI%" (
   exit /b 1
 )
 
-if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" (
+REM Prefer single packed source. Do not overwrite with stale .part* files.
+if not exist "%B64%" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" (
   echo Joining bas.gz.b64 parts ...
-  copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
+  if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part0" (
+    copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part0"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
+  ) else (
+    copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
+  )
 )
 
 if exist "%B64%" (
@@ -35,7 +40,8 @@ if not exist "%BAS%" (
   exit /b 1
 )
 
-echo If VBA break mode: Reset (square) first, then close Outlook.
+echo If VBA break mode: Reset (square / Run - Reset) first, then close Outlook.
+echo NEVER run InstallCalendarExportButton - it was removed.
 echo Closing Outlook...
 taskkill /f /im OUTLOOK.EXE >nul 2>&1
 timeout /t 2 /nobreak >nul
@@ -54,18 +60,19 @@ IF EXIST "%UI_DIR%\olkexplorer1.officeUI" (
 xcopy /y "%UI%" "%UI_DIR%\" /I
 echo Ribbon button copied to Local\Microsoft\Office
 
-echo Importing macro into existing VBAProject.OTM ...
+echo Importing macro (removes old ExportCalendarMeetings module first) ...
 if exist "%VBS%" (
   cscript //nologo "%VBS%" "%BAS%"
   if errorlevel 1 (
     echo.
     echo Auto-import failed. Manual once:
-    echo   Outlook -^> Alt+F11 -^> File -^> Import File -^> ExportCalendarMeetings.bas
+    echo   1. Alt+F11 -^> delete module ExportCalendarMeetings (Remove -^> No)
+    echo   2. File -^> Import File -^> ExportCalendarMeetings.bas
     echo.
   )
 ) else (
   echo Missing import-macro.vbs. Manual import:
-  echo   Outlook -^> Alt+F11 -^> File -^> Import File -^> ExportCalendarMeetings.bas
+  echo   Alt+F11 -^> delete old module -^> Import File -^> ExportCalendarMeetings.bas
 )
 
 echo.
@@ -73,7 +80,7 @@ echo ========================================
 echo ALWAYS WORKS:
 echo   Alt+F8 -^> ExportManagerCalendarMeetings -^> Run
 echo.
-echo Button: Calendar tab, group Выгрузка
+echo Button: Calendar tab, group Vygрузка
 echo.
 echo NEVER run InstallCalendarExportButton
 echo ========================================
