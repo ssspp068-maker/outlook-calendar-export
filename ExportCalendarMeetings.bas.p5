@@ -1,0 +1,112 @@
+
+    ByVal text As String, _
+    ByVal hostPos As Long, _
+    ByVal host As String) As String
+
+    Dim startPos As Long
+    Dim endPos As Long
+    Dim ch As String
+    Dim url As String
+    Dim prefix As String
+
+    startPos = hostPos
+    If hostPos > 8 Then
+        prefix = LCase$(Mid$(text, hostPos - 8, 8))
+        If Right$(prefix, 8) = "https://" Then
+            startPos = hostPos - 8
+        End If
+    End If
+    If startPos = hostPos And hostPos > 7 Then
+        prefix = LCase$(Mid$(text, hostPos - 7, 7))
+        If Right$(prefix, 7) = "http://" Then
+            startPos = hostPos - 7
+        End If
+    End If
+    If startPos = hostPos And hostPos > 2 Then
+        If Mid$(text, hostPos - 2, 2) = "//" Then
+            startPos = hostPos - 2
+        End If
+    End If
+
+    endPos = hostPos + Len(host)
+    Do While endPos <= Len(text)
+        ch = Mid$(text, endPos, 1)
+        Select Case True
+            Case ch >= "A" And ch <= "Z"
+            Case ch >= "a" And ch <= "z"
+            Case ch >= "0" And ch <= "9"
+            Case InStr(":/?#[]@!$&'()*+,;=-._~%", ch) > 0
+            Case Else
+                Exit Do
+        End Select
+        endPos = endPos + 1
+    Loop
+
+    url = Mid$(text, startPos, endPos - startPos)
+    url = TrimTrailingUrlJunk(url)
+
+    If Len(url) > 0 Then
+        If LCase$(Left$(url, 7)) <> "http://" And LCase$(Left$(url, 8)) <> "https://" Then
+            If Left$(url, 2) = "//" Then
+                url = "https:" & url
+            Else
+                url = "https://" & url
+            End If
+        End If
+    End If
+
+    ExtractUrlAtHost = url
+End Function
+
+Private Function TrimTrailingUrlJunk(ByVal url As String) As String
+    Dim lastChar As String
+
+    Do While Len(url) > 0
+        lastChar = Right$(url, 1)
+        Select Case lastChar
+            Case ".", ",", ";", "!", "?", ")", "]", "}", """", "'", ">"
+                url = Left$(url, Len(url) - 1)
+            Case Else
+                Exit Do
+        End Select
+    Loop
+
+    TrimTrailingUrlJunk = url
+End Function
+
+
+' --- Russian UI via ChrW/H hex (encoding-safe after .bas import) ---
+
+Private Function H(ByVal hexUtf16 As String) As String
+    Dim i As Long
+    Dim s As String
+    s = ""
+    For i = 1 To Len(hexUtf16) Step 4
+        s = s & ChrW(CLng("&H" & Mid$(hexUtf16, i, 4)))
+    Next i
+    H = s
+End Function
+
+Private Function RuMsgContinue2016() As String
+    RuMsgContinue2016 = H("041C0430043A0440043E0441002004400430044104410447043804420430043D0020043D04300020004F00750074006C006F006F006B00200032003000310036002E0020041F0440043E0434043E043B043604380442044C003F")
+End Function
+
+Private Function RuMsgNoExcel() As String
+    RuMsgNoExcel = H("041D04350020044304340430043B043E0441044C0020043E0442043A0440044B0442044C00200045007800630065006C002E00200414043B044F0020004F00750074006C006F006F006B002000320030003100360020043D044304360435043D00200443044104420430043D043E0432043B0435043D043D044B043900200045007800630065006C002E")
+End Function
+
+Private Function RuSheetMeetings() As String
+    RuSheetMeetings = H("0412044104420440043504470438")
+End Function
+
+Private Function RuHdrTitle() As String
+    RuHdrTitle = H("041D0430043704320430043D04380435")
+End Function
+
+Private Function RuHdrDate() As String
+    RuHdrDate = H("0414043004420430")
+End Function
+
+Private Function RuHdrPlace() As String
+    RuHdrPlace = H("041C043504410442043E")
+End 
