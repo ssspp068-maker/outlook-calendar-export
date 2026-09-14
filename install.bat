@@ -39,27 +39,29 @@ xcopy /y "%SRC%olkexplorer.officeUI" "%UI_LOCAL%\" /I >nul
 xcopy /y "%SRC%olkexplorer.officeUI" "%UI_ROAM%\" /I >nul
 echo Кнопка (файл ленты)... OK
 
-echo Импортирую макрос...
+echo Импортирую макрос (старый ExportCalendarMeetings удаляется, затем Import)...
 cscript //nologo "%VBS%" "%BAS%"
 set "ERR=%ERRORLEVEL%"
 
 if not "%ERR%"=="0" (
   echo.
   echo Автоимпорт не вышел. Один раз вручную:
-  echo   Outlook → Alt+F11 → Import File → ExportCalendarMeetings.bas
+  echo   Outlook → Alt+F11 → удалить модуль ExportCalendarMeetings ^(если есть^)
+  echo   File → Import File → ExportCalendarMeetings.bas
+  echo   ^(фикс кодировки кириллицы: строки через ChrW^)
   echo.
 )
 
 echo.
 echo ========================================
 echo ЗАПУСК МАКРОСА (если кнопки нет):
-echo   Alt+F8 → ExportManagerCalendarMeetings → Выполнить
+  echo   Alt+F8 → ExportManagerCalendarMeetings → Выполнить
 echo.
 echo Кнопка на «Календарь» вручную (надёжно):
-echo   1^) Откройте Календарь
-echo   2^) Файл → Параметры → Настроить ленту
-echo   3^) Справа: Календарь → Создать группу
-echo   4^) Слева: Макросы → ExportManagerCalendarMeetings → Добавить
-echo   5^) ОК
+  echo   1^) Откройте Календарь
+  echo   2^) Файл → Параметры → Настроить ленту
+  echo   3^) Справа: Календарь → Создать группу
+  echo   4^) Слева: Макросы → ExportManagerCalendarMeetings → Добавить
+  echo   5^) ОК
 echo ========================================
 pause
