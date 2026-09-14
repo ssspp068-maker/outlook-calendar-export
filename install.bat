@@ -6,7 +6,6 @@ set "UI_DIR=%UserProfile%\AppData\Local\Microsoft\Office"
 set "BAS=%SRC%ExportCalendarMeetings.bas"
 set "VBS=%SRC%import-macro.vbs"
 set "UI=%SRC%olkexplorer.officeUI"
-set "B64=%SRC%ExportCalendarMeetings.bas.gz.b64"
 
 if not exist "%UI%" (
   echo [ERROR] Missing olkexplorer.officeUI
@@ -14,32 +13,24 @@ if not exist "%UI%" (
   exit /b 1
 )
 
-REM 1) Prefer ASCII ChrW fragments p0-p7 (survive GitHub UTF-8).
-if exist "%SRC%ExportCalendarMeetings.bas.p0" if exist "%SRC%ExportCalendarMeetings.bas.p7" (
-  echo Assembling ExportCalendarMeetings.bas from p0-p7 ...
-  copy /b "%SRC%ExportCalendarMeetings.bas.p0"+"%SRC%ExportCalendarMeetings.bas.p1"+"%SRC%ExportCalendarMeetings.bas.p2"+"%SRC%ExportCalendarMeetings.bas.p3"+"%SRC%ExportCalendarMeetings.bas.p4"+"%SRC%ExportCalendarMeetings.bas.p5"+"%SRC%ExportCalendarMeetings.bas.p6"+"%SRC%ExportCalendarMeetings.bas.p7" "%BAS%" >nul
-  goto have_bas
-)
+if not exist "%SRC%ExportCalendarMeetings.bas.p0" goto no_parts
+if not exist "%SRC%ExportCalendarMeetings.bas.p1" goto no_parts
+if not exist "%SRC%ExportCalendarMeetings.bas.p2" goto no_parts
+if not exist "%SRC%ExportCalendarMeetings.bas.p3" goto no_parts
+if not exist "%SRC%ExportCalendarMeetings.bas.p4" goto no_parts
+if not exist "%SRC%ExportCalendarMeetings.bas.p5" goto no_parts
+if not exist "%SRC%ExportCalendarMeetings.bas.p6" goto no_parts
+if not exist "%SRC%ExportCalendarMeetings.bas.p7" goto no_parts
 
-REM 2) Else expand from gz.b64 (join gz parts only if pack missing).
-if not exist "%B64%" (
-  if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part0" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part2" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part3" (
-    echo Joining bas.gz.b64 parts 0-3 ...
-    copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part0"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part3" "%B64%" >nul
-  ) else if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part0" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part2" (
-    echo Joining bas.gz.b64 parts 0-2 ...
-    copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part0"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
-  )
-)
+echo Assembling ExportCalendarMeetings.bas from p0-p7 ...
+copy /b "%SRC%ExportCalendarMeetings.bas.p0"+"%SRC%ExportCalendarMeetings.bas.p1"+"%SRC%ExportCalendarMeetings.bas.p2"+"%SRC%ExportCalendarMeetings.bas.p3"+"%SRC%ExportCalendarMeetings.bas.p4"+"%SRC%ExportCalendarMeetings.bas.p5"+"%SRC%ExportCalendarMeetings.bas.p6"+"%SRC%ExportCalendarMeetings.bas.p7" "%BAS%" >nul
+goto have_bas
 
-if exist "%B64%" (
-  echo Expanding ExportCalendarMeetings.bas from gz.b64 ...
-  powershell -NoProfile -Command "$b=[Convert]::FromBase64String(((Get-Content -Raw '%B64%') -replace '\s','')); $ms=New-Object IO.MemoryStream(,$b); $gz=New-Object IO.Compression.GzipStream($ms,[IO.Compression.CompressionMode]::Decompress); $out=New-Object IO.FileStream('%BAS%',[IO.FileMode]::Create); $gz.CopyTo($out); $out.Close(); $gz.Close(); $ms.Close()"
-  if errorlevel 1 (
-    echo [ERROR] Failed to expand bas.gz.b64
-    pause
-    exit /b 1
-  )
+:no_parts
+if not exist "%BAS%" (
+  echo [ERROR] Missing ExportCalendarMeetings.bas.p0-p7
+  pause
+  exit /b 1
 )
 
 :have_bas
@@ -76,7 +67,6 @@ if exist "%VBS%" (
     echo Auto-import failed. Manual once:
     echo   1. Alt+F11 -^> delete module ExportCalendarMeetings (Remove -^> No)
     echo   2. File -^> Import File -^> ExportCalendarMeetings.bas
-    echo   (Russian UI uses ChrW/H - encoding-safe)
     echo.
   )
 ) else (
