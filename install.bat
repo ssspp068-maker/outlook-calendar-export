@@ -14,11 +14,6 @@ if not exist "%UI%" (
   exit /b 1
 )
 
-if exist "%SRC%ExportCalendarMeetings.bas.part0" (
-  echo Joining ExportCalendarMeetings.bas parts ...
-  copy /b "%SRC%ExportCalendarMeetings.bas.part0"+"%SRC%ExportCalendarMeetings.bas.part1"+"%SRC%ExportCalendarMeetings.bas.part2" "%BAS%" >nul
-)
-
 if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" (
   echo Joining bas.gz.b64 parts ...
   copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
@@ -40,6 +35,7 @@ if not exist "%BAS%" (
   exit /b 1
 )
 
+echo If VBA break mode: Reset (square) first, then close Outlook.
 echo Closing Outlook...
 taskkill /f /im OUTLOOK.EXE >nul 2>&1
 timeout /t 2 /nobreak >nul
@@ -79,6 +75,6 @@ echo   Alt+F8 -^> ExportManagerCalendarMeetings -^> Run
 echo.
 echo Button: Calendar tab, group Выгрузка
 echo.
-echo NEVER run the old CommandBars installer macro
+echo NEVER run InstallCalendarExportButton
 echo ========================================
 pause
