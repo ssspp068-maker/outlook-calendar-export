@@ -13,8 +13,14 @@ if not exist "%UI%" (
   exit /b 1
 )
 
+REM Assemble full ChrW/H() module from ASCII fragments (encoding-safe on GitHub).
+if exist "%SRC%ExportCalendarMeetings.bas.p0" if exist "%SRC%ExportCalendarMeetings.bas.p7" (
+  echo Assembling ExportCalendarMeetings.bas from p0-p7 ...
+  copy /b "%SRC%ExportCalendarMeetings.bas.p0"+"%SRC%ExportCalendarMeetings.bas.p1"+"%SRC%ExportCalendarMeetings.bas.p2"+"%SRC%ExportCalendarMeetings.bas.p3"+"%SRC%ExportCalendarMeetings.bas.p4"+"%SRC%ExportCalendarMeetings.bas.p5"+"%SRC%ExportCalendarMeetings.bas.p6"+"%SRC%ExportCalendarMeetings.bas.p7" "%BAS%" >nul
+)
+
 if not exist "%BAS%" (
-  echo [ERROR] Missing ExportCalendarMeetings.bas
+  echo [ERROR] Missing ExportCalendarMeetings.bas / p0-p7
   pause
   exit /b 1
 )
