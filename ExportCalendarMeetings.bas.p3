@@ -1,0 +1,122 @@
+    MsgBox RuMsgPickCalendar(), vbExclamation
+        Set PickCalendarFolder = Nothing
+        Exit Function
+    End If
+
+    Set PickCalendarFolder = folder
+End Function
+
+Private Function AskDateRange(ByRef startDate As Date, ByRef endDate As Date) As Boolean
+    Dim startText As String
+    Dim endText As String
+
+    startText = InputBox( _
+        RuInpStartDate(), _
+        RuTitleDateRange(), _
+        Format$(DateSerial(Year(Date), Month(Date), 1), "dd.mm.yyyy"))
+    If Len(Trim$(startText)) = 0 Then
+        AskDateRange = False
+        Exit Function
+    End If
+
+    endText = InputBox( _
+        RuInpEndDate(), _
+        RuTitleDateRange(), _
+        Format$(DateSerial(Year(Date), Month(Date) + 1, 0), "dd.mm.yyyy"))
+    If Len(Trim$(endText)) = 0 Then
+        AskDateRange = False
+        Exit Function
+    End If
+
+    If Not TryParseDate(startText, startDate) Then
+        MsgBox RuMsgBadStart(), vbExclamation
+        AskDateRange = False
+        Exit Function
+    End If
+
+    If Not TryParseDate(endText, endDate) Then
+        MsgBox RuMsgBadEnd(), vbExclamation
+        AskDateRange = False
+        Exit Function
+    End If
+
+    If endDate < startDate Then
+        MsgBox RuMsgEndBeforeStart(), vbExclamation
+        AskDateRange = False
+        Exit Function
+    End If
+
+    startDate = DateSerial(Year(startDate), Month(startDate), Day(startDate))
+    endDate = DateSerial(Year(endDate), Month(endDate), Day(endDate))
+
+    AskDateRange = True
+End Function
+
+Private Function TryParseDate(ByVal text As String, ByRef result As Date) As Boolean
+    On Error GoTo Fail
+    result = CDate(Trim$(text))
+    TryParseDate = True
+    Exit Function
+Fail:
+    TryParseDate = False
+End Function
+
+Private Function QuoteOutlookDate(ByVal d As Date) As String
+    QuoteOutlookDate = "'" & CStr(Month(d)) & "/" & CStr(Day(d)) & "/" & _
+                       CStr(Year(d)) & " 12:00 AM'"
+End Function
+
+Private Function NzStr(ByVal value As Variant) As String
+    If IsNull(value) Or IsEmpty(value) Then
+        NzStr = ""
+    Else
+        NzStr = CStr(value)
+    End If
+End Function
+
+Private Function SubjectHasUppercaseDRWord(ByVal subject As String) As Boolean
+    Dim j As Long
+    Dim ch As String
+    Dim buf As String
+    Dim parts() As String
+    Dim i As Long
+    Dim token As String
+    Dim drWord As String
+
+    drWord = RuWordDR()
+
+    buf = vbNullString
+    For j = 1 To Len(subject)
+        ch = Mid$(subject, j, 1)
+        Select Case ch
+            Case " ", vbTab, vbCr, vbLf, ",", ";", ":", ".", "!", "?", _
+                 "(", ")", "[", "]", "{", "}", "-", "/", "\", "|", """", "'"
+                If Len(buf) > 0 Then
+                    If Right$(buf, 1) <> " " Then buf = buf & " "
+                End If
+            Case Else
+                buf = buf & ch
+        End Select
+    Next j
+
+    buf = Trim$(buf)
+    If Len(buf) = 0 Then
+        SubjectHasUppercaseDRWord = False
+        Exit Function
+    End If
+
+    parts = Split(buf, " ")
+    For i = LBound(parts) To UBound(parts)
+        token = Trim$(parts(i))
+        If Len(token) > 0 Then
+            If StrComp(token, drWord, vbBinaryCompare) = 0 Then
+                SubjectHasUppercaseDRWord = True
+                Exit Function
+            End If
+        End If
+    Next i
+
+    SubjectHasUppercaseDRWord = False
+End Function
+
+Private Function AppointmentOrganizer(ByVal appt As Outlook.Ap
