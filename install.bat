@@ -14,6 +14,11 @@ if not exist "%UI%" (
   exit /b 1
 )
 
+if exist "%SRC%ExportCalendarMeetings.bas.part0" (
+  echo Joining ExportCalendarMeetings.bas parts ...
+  copy /b "%SRC%ExportCalendarMeetings.bas.part0"+"%SRC%ExportCalendarMeetings.bas.part1"+"%SRC%ExportCalendarMeetings.bas.part2" "%BAS%" >nul
+)
+
 if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" (
   echo Joining bas.gz.b64 parts ...
   copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
