@@ -14,6 +14,11 @@ if not exist "%UI%" (
   exit /b 1
 )
 
+if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" (
+  echo Joining bas.gz.b64 parts ...
+  copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
+)
+
 if exist "%B64%" (
   echo Expanding ExportCalendarMeetings.bas from gz.b64 ...
   powershell -NoProfile -Command "$b=[Convert]::FromBase64String(((Get-Content -Raw '%B64%') -replace '\s','')); $ms=New-Object IO.MemoryStream(,$b); $gz=New-Object IO.Compression.GzipStream($ms,[IO.Compression.CompressionMode]::Decompress); $out=New-Object IO.FileStream('%BAS%',[IO.FileMode]::Create); $gz.CopyTo($out); $out.Close(); $gz.Close(); $ms.Close()"
