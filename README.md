@@ -1,5 +1,22 @@
-1. Скачайте ZIP (Code → Download ZIP) и распакуйте.
-2. Запустите `install.bat` (закроет Outlook, скопирует кнопку, импортирует макрос).
-3. Откройте **Календарь** → кнопка «Выгрузить встречи», или всегда: **Alt+F8** → `ExportManagerCalendarMeetings`.
-4. Если старый модуль мешает: **Alt+F11** → удалите `ExportCalendarMeetings` → снова `install.bat` или Import `.bas`.
-5. **НИКОГДА** не запускайте `InstallCalendarExportButton`.
+# Выгрузка встреч календаря (Outlook 2016)
+
+## Установка
+
+1. Code → Download ZIP → распаковать
+2. Запустить `install.bat` (соберёт `.bas` из `*.gz.b64.part*`, импортирует макрос, **удалит** старый модуль)
+3. Открыть Outlook → Календарь
+
+### Кракозябры вместо русского
+
+Должно быть: «Диапазон дат», «Начало периода», «Исключения из поиска». Если нет:
+
+- снова `install.bat`, или
+- `Alt+F11` → удалить `ExportCalendarMeetings` → Import `ExportCalendarMeetings.bas`
+
+Русский UI через `ChrW`/`H()` — не зависит от кодировки файла на GitHub.
+
+## Запуск
+
+`Alt+F8` → `ExportManagerCalendarMeetings`
+
+Excel → **Изображения**. Не запускайте `InstallCalendarExportButton`.
