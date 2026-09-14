@@ -14,22 +14,10 @@ if not exist "%UI%" (
   exit /b 1
 )
 
-REM 1) Prefer ASCII ChrW fragments (survive GitHub UTF-8).
-if exist "%SRC%ExportCalendarMeetings.bas.part0" if exist "%SRC%ExportCalendarMeetings.bas.part1" if exist "%SRC%ExportCalendarMeetings.bas.part2" if exist "%SRC%ExportCalendarMeetings.bas.part3" (
-  echo Assembling ExportCalendarMeetings.bas from part0-3 ...
-  copy /b "%SRC%ExportCalendarMeetings.bas.part0"+"%SRC%ExportCalendarMeetings.bas.part1"+"%SRC%ExportCalendarMeetings.bas.part2"+"%SRC%ExportCalendarMeetings.bas.part3" "%BAS%" >nul
-  goto have_bas
-)
-
-REM 2) Else expand from gz.b64 (join gz parts only if pack missing).
-if not exist "%B64%" (
-  if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part0" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part2" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part3" (
-    echo Joining bas.gz.b64 parts 0-3 ...
-    copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part0"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part3" "%B64%" >nul
-  ) else if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part0" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part2" (
-    echo Joining bas.gz.b64 parts 0-2 ...
-    copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part0"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
-  )
+REM Always rebuild from part0+1+2 when present (overrides corrupt/stale .gz.b64).
+if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part0" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part1" if exist "%SRC%ExportCalendarMeetings.bas.gz.b64.part2" (
+  echo Joining bas.gz.b64 parts ...
+  copy /b "%SRC%ExportCalendarMeetings.bas.gz.b64.part0"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part1"+"%SRC%ExportCalendarMeetings.bas.gz.b64.part2" "%B64%" >nul
 )
 
 if exist "%B64%" (
@@ -42,14 +30,12 @@ if exist "%B64%" (
   )
 )
 
-:have_bas
 if not exist "%BAS%" (
   echo [ERROR] Missing ExportCalendarMeetings.bas
   pause
   exit /b 1
 )
 
-echo If VBA break mode: Reset (square / Run - Reset) first, then close Outlook.
 echo Closing Outlook...
 taskkill /f /im OUTLOOK.EXE >nul 2>&1
 timeout /t 2 /nobreak >nul
@@ -68,20 +54,21 @@ IF EXIST "%UI_DIR%\olkexplorer1.officeUI" (
 xcopy /y "%UI%" "%UI_DIR%\" /I
 echo Ribbon button copied to Local\Microsoft\Office
 
-echo Importing macro (deletes old ExportCalendarMeetings module first) ...
+echo Importing macro (removes old ExportCalendarMeetings, then Import)...
 if exist "%VBS%" (
   cscript //nologo "%VBS%" "%BAS%"
   if errorlevel 1 (
     echo.
     echo Auto-import failed. Manual once:
-    echo   1. Alt+F11 -^> delete module ExportCalendarMeetings (Remove -^> No)
-    echo   2. File -^> Import File -^> ExportCalendarMeetings.bas
-    echo   (Russian UI uses ChrW/H - encoding-safe)
+    echo   Outlook -^> Alt+F11 -^> delete ExportCalendarMeetings if present
+    echo   File -^> Import File -^> ExportCalendarMeetings.bas
+    echo   (Cyrillic UI uses ChrW/H — encoding-safe)
     echo.
   )
 ) else (
   echo Missing import-macro.vbs. Manual import:
-  echo   Alt+F11 -^> delete old module -^> Import File -^> ExportCalendarMeetings.bas
+  echo   Outlook -^> Alt+F11 -^> delete ExportCalendarMeetings if present
+  echo   File -^> Import File -^> ExportCalendarMeetings.bas
 )
 
 echo.
