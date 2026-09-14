@@ -35,11 +35,13 @@ If errNum <> 0 Or vbProj Is Nothing Then
   WScript.Quit 2
 End If
 
-' Remove previous ExportCalendarMeetings module if present
 For i = vbProj.VBComponents.Count To 1 Step -1
   Set vbComp = vbProj.VBComponents.Item(i)
   If Not vbComp Is Nothing Then
     If StrComp(vbComp.Name, "ExportCalendarMeetings", vbTextCompare) = 0 Then
+      vbProj.VBComponents.Remove vbComp
+      Err.Clear
+    ElseIf StrComp(vbComp.Name, "RuUiStrings", vbTextCompare) = 0 Then
       vbProj.VBComponents.Remove vbComp
       Err.Clear
     End If
