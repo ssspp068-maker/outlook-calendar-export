@@ -3,7 +3,7 @@ Option Explicit
 Dim basPath, ol, ns, vbProj, vbComp, i, errNum, errDesc
 
 If WScript.Arguments.Count < 1 Then
-  WScript.Echo "Нужен путь к .bas"
+  WScript.Echo "Need path to .bas file"
   WScript.Quit 1
 End If
 
@@ -14,7 +14,7 @@ On Error Resume Next
 Set ol = CreateObject("Outlook.Application")
 errNum = Err.Number: errDesc = Err.Description: Err.Clear
 If errNum <> 0 Or ol Is Nothing Then
-  WScript.Echo "Не удалось запустить Outlook: " & errDesc
+  WScript.Echo "Cannot start Outlook: " & errDesc
   WScript.Quit 1
 End If
 
@@ -22,21 +22,20 @@ Set ns = ol.GetNamespace("MAPI")
 ns.Logon "", "", False, False
 Err.Clear
 
-' Дать Outlook догрузиться
 WScript.Sleep 2000
 
 Set vbProj = ol.VBE.ActiveVBProject
 errNum = Err.Number: errDesc = Err.Description: Err.Clear
 If errNum <> 0 Or vbProj Is Nothing Then
-  WScript.Echo "Нет доступа к VBA-проекту Outlook."
-  WScript.Echo "Включите: Параметры → Центр управления безопасностью →"
-  WScript.Echo "Параметры макросов → «Доверять доступ к объектной модели проектов VBA»"
+  WScript.Echo "No access to Outlook VBA project."
+  WScript.Echo "Enable: File > Options > Trust Center > Trust Center Settings >"
+  WScript.Echo "Macro Settings > Trust access to the VBA project object model"
   On Error Resume Next
   ol.Quit
   WScript.Quit 2
 End If
 
-' Удалить старую версию модуля, если уже была
+' Remove previous ExportCalendarMeetings module if present
 For i = vbProj.VBComponents.Count To 1 Step -1
   Set vbComp = vbProj.VBComponents.Item(i)
   If Not vbComp Is Nothing Then
@@ -50,14 +49,13 @@ Next
 vbProj.VBComponents.Import basPath
 errNum = Err.Number: errDesc = Err.Description: Err.Clear
 If errNum <> 0 Then
-  WScript.Echo "Импорт .bas не удался: " & errDesc
+  WScript.Echo "Import failed: " & errDesc
   ol.Quit
   WScript.Quit 3
 End If
 
-WScript.Echo "Макрос ExportCalendarMeetings импортирован."
+WScript.Echo "Module ExportCalendarMeetings imported."
 
-' Закрыть Outlook — чтобы VBAProject.OTM сохранился на диск
 ol.Quit
 WScript.Sleep 1500
 WScript.Quit 0
