@@ -1,4 +1,1 @@
-Attribute VB_Name = "ExportCalendarMeetings"
-Option Explicit
-
-' PLACEHOLDER - will be replaced
+@/tmp/RESTORE_bas.txt
