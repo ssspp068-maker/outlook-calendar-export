@@ -18,7 +18,6 @@ if not exist "%UI%" (
   exit /b 1
 )
 
-echo If VBA break mode: Reset (square) first, then close Outlook.
 echo Closing Outlook...
 taskkill /f /im OUTLOOK.EXE >nul 2>&1
 timeout /t 2 /nobreak >nul
@@ -29,7 +28,7 @@ reg add "HKCU\Software\Microsoft\Office\16.0\Common\Security" /v AccessVBOM /t R
 
 if not exist "%UI_DIR%" mkdir "%UI_DIR%"
 
-rem Backup existing ribbon UI once (same pattern as working install_4cd1.bat)
+rem Backup existing ribbon UI once (same pattern as working install example)
 IF EXIST "%UI_DIR%\olkexplorer1.officeUI" (
   ECHO Backup olkexplorer1.officeUI already exists
 ) ELSE (
@@ -37,7 +36,7 @@ IF EXIST "%UI_DIR%\olkexplorer1.officeUI" (
 )
 
 xcopy /y "%UI%" "%UI_DIR%\" /I
-echo Ribbon button file copied to Local\Microsoft\Office
+echo Ribbon button copied to Local\Microsoft\Office
 
 echo Importing macro into existing VBAProject.OTM ...
 if exist "%VBS%" (
@@ -58,8 +57,8 @@ echo ========================================
 echo ALWAYS WORKS:
 echo   Alt+F8 -^> ExportManagerCalendarMeetings -^> Run
 echo.
-echo Button: open Calendar tab, group "Vigruzka" / Выгрузка
+echo Button: Calendar tab, group Выгрузка
 echo.
-echo NEVER run InstallCalendarExportButton
+echo NEVER run the old CommandBars installer macro
 echo ========================================
 pause
