@@ -1,0 +1,96 @@
+Attribute VB_Name = "ExportCalendarMeetings"
+Option Explicit
+
+' Outlook 2016 calendar meetings -> Excel.
+' Run: Calendar ribbon button (install.bat + olkexplorer.officeUI)
+'      or Alt+F8 -> ExportManagerCalendarMeetings
+'
+' Filters: uppercase DR word in subject; meetings with attendees;
+'          subject exclusions (suggested + custom ; or ,).
+' Columns: title, date, place, link, duration, organizer,
+'          required, optional, attachments, attachment count.
+' Links: Teams / Yandex Telemost / ivavks.rosatom.ru full URLs.
+' Save: user Pictures folder.
+' Install: install.bat copies olkexplorer.officeUI and imports this .bas only.
+
+Private Const xlOpenXMLWorkbook As Long = 51
+
+Public Sub ExportManagerCalendarMeetings()
+    Dim calendarFolder As Outlook.MAPIFolder
+    Dim startDate As Date
+    Dim endDate As Date
+    Dim calItems As Outlook.Items
+    Dim filtered As Outlook.Items
+    Dim appt As Object
+    Dim xlApp As Object
+    Dim xlBook As Object
+    Dim xlSheet As Object
+    Dim row As Long
+    Dim count As Long
+    Dim restrictFilter As String
+    Dim savePath As String
+    Dim exclusions() As String
+    Dim subjectText As String
+    Dim attachNames As String
+    Dim attachCount As Long
+    Dim meetingLink As String
+
+    If Not IsOutlook2016Family() Then
+        If MsgBox(RuMsgContinue2016(), _
+                  vbYesNo Or vbQuestion, "Outlook") = vbNo Then
+            Exit Sub
+        End If
+    End If
+
+    Set calendarFolder = PickCalendarFolder()
+    If calendarFolder Is Nothing Then Exit Sub
+
+    If Not AskDateRange(startDate, endDate) Then Exit Sub
+
+    If Not AskSubjectExclusions(exclusions) Then Exit Sub
+
+    Set calItems = calendarFolder.Items
+    calItems.Sort "[Start]"
+    calItems.IncludeRecurrences = True
+
+    restrictFilter = "[Start] >= " & QuoteOutlookDate(startDate) & _
+                     " AND [End] <= " & QuoteOutlookDate(DateAdd("d", 1, endDate))
+
+    Set filtered = calItems.Restrict(restrictFilter)
+    filtered.Sort "[Start]"
+
+    On Error Resume Next
+    Set xlApp = CreateObject("Excel.Application")
+    On Error GoTo 0
+    If xlApp Is Nothing Then
+        MsgBox RuMsgNoExcel(), vbExclamation
+        Exit Sub
+    End If
+
+    xlApp.Visible = True
+    xlApp.DisplayAlerts = False
+    Set xlBook = xlApp.Workbooks.Add
+    Set xlSheet = xlBook.Worksheets(1)
+    On Error Resume Next
+    xlSheet.Name = RuSheetMeetings()
+    On Error GoTo 0
+
+    xlSheet.Range("A1:J1").Value = Array( _
+        RuHdrTitle(), RuHdrDate(), RuHdrPlace(), RuHdrLink(), RuHdrDuration(), RuHdrOrganizer(), _
+        RuHdrRequired(), RuHdrOptional(), RuHdrAttachments(), RuHdrAttachCount())
+    xlSheet.Range("A1:J1").Font.Bold = True
+
+    row = 2
+    count = 0
+
+    Set appt = filtered.GetFirst
+    Do While Not appt Is Nothing
+        If TypeName(appt) = "AppointmentItem" Then
+            If appt.Start >= startDate And appt.Start < DateAdd("d", 1, endDate) Then
+                subjectText = NzStr(appt.Subject)
+                If Not SubjectHasUppercaseDRWord(subjectText) Then
+                    If Not SubjectMatchesExclusions(subjectText, exclusions) Then
+                        If AppointmentHasAttendees(appt) Then
+                            CollectAttachmentInfo appt, attachNames, attachCount
+                            meetingLink = ExtractMeetingLinks(appt)
+                            xlSheet.Cells(row, 1).Value = su
