@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mso:customUI xmlns:mso="http://schemas.microsoft.com/office/2009/07/customui" xmlns:x1="http://schemas.microsoft.com/office/2009/07/customui/macro">
+	<mso:ribbon>
+		<mso:qat/>
+		<mso:tabs>
+			<mso:tab idQ="mso:TabCalendar">
+				<mso:group id="mso_calExportMeetings" label="Выгрузка" autoScale="true">
+					<mso:button idQ="x1:ExportManagerCalendarMeetings" label="Выгрузить встречи" imageMso="ExportExcel" onAction="x1:ExportManagerCalendarMeetings" visible="true"/>
+				</mso:group>
+			</mso:tab>
+		</mso:tabs>
+	</mso:ribbon>
+</mso:customUI>
