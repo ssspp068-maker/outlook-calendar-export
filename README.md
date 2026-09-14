@@ -1,25 +1,18 @@
 # Выгрузка встреч календаря (Outlook 2016)
 
+## Если debug / break mode на старом InstallCalendarExportButton
+
+1. VBA → **Reset** (■ / Run → Reset)
+2. `Alt+F11` → удалите модуль `ExportCalendarMeetings` (Remove → No)
+3. Import нового `ExportCalendarMeetings.bas` или закройте Outlook и запустите `install.bat`
+4. `Alt+F8` → `ExportManagerCalendarMeetings` → Выполнить
+5. **НИКОГДА** не запускайте `InstallCalendarExportButton`
+
 ## Установка
 
-1. Code → Download ZIP → распаковать
-2. Запустить `install.bat` (закроет Outlook, поставит кнопку, **удалит** старый модуль `ExportCalendarMeetings` и импортирует новый `.bas`)
-3. Открыть Outlook → Календарь
+1. Скачайте ZIP (Code → Download ZIP) и распакуйте.
+2. Запустите `install.bat` (закроет Outlook, скопирует кнопку, импортирует макрос).
+3. Откройте **Календарь** → кнопка «Выгрузить встречи», или всегда: **Alt+F8** → `ExportManagerCalendarMeetings`.
+4. Если старый модуль мешает: **Alt+F11** → удалите `ExportCalendarMeetings` → снова `install.bat` или Import `.bas`.
 
-### Обновление / кракозябры вместо русского
-
-В диалогах должен быть нормальный русский (`Диапазон дат`, `Начало периода`, `Исключения из поиска`). Если нет — скачайте ZIP снова и переустановите:
-
-- снова `install.bat`, **или**
-- `Alt+F11` → удалить `ExportCalendarMeetings` → File → Import File → `ExportCalendarMeetings.bas`
-
-Русский UI собран через `ChrW`, поэтому UTF-8 на GitHub не ломает текст в Outlook.
-
-## Запуск
-
-- **Alt+F8** → `ExportManagerCalendarMeetings` → Выполнить
-- или кнопка на вкладке **Календарь**
-
-Excel → папка **Изображения**.
-
-Не запускайте `InstallCalendarExportButton` (устаревший установщик).
+Русский UI в MsgBox/InputBox/заголовках — через `ChrW`/`CW` (не зависит от кодировки `.bas`).
