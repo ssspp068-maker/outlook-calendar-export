@@ -6,7 +6,7 @@ Option Explicit
 ' then imports the assembled .bas into Outlook VBA.
 ' Do NOT run the old CommandBars installer macro.
 
-Public Sub ExportManagerCalendarMeetings()
+Public Sub ExportManagerCalendarMeetings(Optional ByVal control As Variant)
     MsgBox "Run install.bat first (assembles module from p0-p7), then Alt+F8 again.", vbExclamation
 End Sub
 
