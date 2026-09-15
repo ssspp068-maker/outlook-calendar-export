@@ -1,4 +1,14 @@
-    MsgBox RuMsgPickCalendar(), vbExclamation
+older() As Outlook.MAPIFolder
+    Dim folder As Outlook.MAPIFolder
+
+    Set folder = Application.Session.PickFolder
+    If folder Is Nothing Then
+        Set PickCalendarFolder = Nothing
+        Exit Function
+    End If
+
+    If folder.DefaultItemType <> olAppointmentItem Then
+        MsgBox RuMsgPickCalendar(), vbExclamation
         Set PickCalendarFolder = Nothing
         Exit Function
     End If
@@ -111,12 +121,3 @@ Private Function SubjectHasUppercaseDRWord(ByVal subject As String) As Boolean
         If Len(token) > 0 Then
             If StrComp(token, drWord, vbBinaryCompare) = 0 Then
                 SubjectHasUppercaseDRWord = True
-                Exit Function
-            End If
-        End If
-    Next i
-
-    SubjectHasUppercaseDRWord = False
-End Function
-
-Private Function AppointmentOrganizer(ByVal appt As Outlook.Ap
