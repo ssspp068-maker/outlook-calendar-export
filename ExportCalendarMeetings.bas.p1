@@ -1,4 +1,10 @@
-bjectText
+         subjectText = NzStr(appt.Subject)
+                If Not SubjectHasUppercaseDRWord(subjectText) Then
+                    If Not SubjectMatchesExclusions(subjectText, exclusions) Then
+                        If AppointmentHasAttendees(appt) Then
+                            CollectAttachmentInfo appt, attachNames, attachCount
+                            meetingLink = ExtractMeetingLinks(appt)
+                            xlSheet.Cells(row, 1).Value = subjectText
                             xlSheet.Cells(row, 2).Value = Format$(appt.Start, "yyyy-mm-dd hh:nn")
                             xlSheet.Cells(row, 3).Value = NzStr(appt.Location)
                             xlSheet.Cells(row, 4).Value = meetingLink
@@ -81,18 +87,4 @@ End Function
 Private Function DefaultExclusionsText() As String
     DefaultExclusionsText = RuWordObed() & ";" & RuWordUzhin() & _
         ";lunch;dinner;focus time;focus;block;" & _
-        RuWordZanyat() & ";" & RuWordFokus() & _
-        ";out of office;ooo;" & RuWordNn()
-End Function
-
-Private Function ParseExclusionList(ByVal raw As String) As String()
-    Dim normalized As String
-    Dim parts() As String
-    Dim i As Long
-    Dim token As String
-    Dim tmp() As String
-    Dim n As Long
-
-    normalized = Replace(raw, ",", ";")
-    parts = Split(normalized, ";")
-    ReDim tmp(0 To
+        RuWordZanyat() & ";" & RuWor
