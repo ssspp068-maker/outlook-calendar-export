@@ -1,4 +1,12 @@
-pointmentItem) As String
+                Exit Function
+            End If
+        End If
+    Next i
+
+    SubjectHasUppercaseDRWord = False
+End Function
+
+Private Function AppointmentOrganizer(ByVal appt As Outlook.AppointmentItem) As String
     Dim organizer As Outlook.AddressEntry
 
     On Error Resume Next
@@ -116,10 +124,4 @@ Private Function FindAllMeetingLinks(ByVal haystack As String) As String
                 End If
             End If
             searchFrom = hostPos + Len(CStr(hosts(h)))
-        Loop
-    Next h
-
-    FindAllMeetingLinks = found
-End Function
-
-Private Function ExtractUrlAtHost( _
+        
