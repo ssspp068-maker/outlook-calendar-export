@@ -1,4 +1,18 @@
- UBound(parts))
+dFokus() & _
+        ";out of office;ooo;" & RuWordNn()
+End Function
+
+Private Function ParseExclusionList(ByVal raw As String) As String()
+    Dim normalized As String
+    Dim parts() As String
+    Dim i As Long
+    Dim token As String
+    Dim tmp() As String
+    Dim n As Long
+
+    normalized = Replace(raw, ",", ";")
+    parts = Split(normalized, ";")
+    ReDim tmp(0 To UBound(parts))
     n = -1
 
     For i = LBound(parts) To UBound(parts)
@@ -121,14 +135,4 @@ Private Function IsOutlook2016Family() As Boolean
     IsOutlook2016Family = (major = 16)
 End Function
 
-Private Function PickCalendarFolder() As Outlook.MAPIFolder
-    Dim folder As Outlook.MAPIFolder
-
-    Set folder = Application.Session.PickFolder
-    If folder Is Nothing Then
-        Set PickCalendarFolder = Nothing
-        Exit Function
-    End If
-
-    If folder.DefaultItemType <> olAppointmentItem Then
-    
+Private Function PickCalendarF
