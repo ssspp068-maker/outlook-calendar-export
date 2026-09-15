@@ -1,4 +1,10 @@
+Loop
+    Next h
 
+    FindAllMeetingLinks = found
+End Function
+
+Private Function ExtractUrlAtHost( _
     ByVal text As String, _
     ByVal hostPos As Long, _
     ByVal host As String) As String
@@ -87,6 +93,11 @@ Private Function H(ByVal hexUtf16 As String) As String
     H = s
 End Function
 
+Private Function RuMsgErrorPrefix() As String
+    ' "Oshibka: " via ChrW (prefix for Err MsgBox)
+    RuMsgErrorPrefix = H("041E044804380431043A0430003A0020")
+End Function
+
 Private Function RuMsgContinue2016() As String
     RuMsgContinue2016 = H("041C0430043A0440043E0441002004400430044104410447043804420430043D0020043D04300020004F00750074006C006F006F006B00200032003000310036002E0020041F0440043E0434043E043B043604380442044C003F")
 End Function
@@ -102,11 +113,3 @@ End Function
 Private Function RuHdrTitle() As String
     RuHdrTitle = H("041D0430043704320430043D04380435")
 End Function
-
-Private Function RuHdrDate() As String
-    RuHdrDate = H("0414043004420430")
-End Function
-
-Private Function RuHdrPlace() As String
-    RuHdrPlace = H("041C043504410442043E")
-End 
