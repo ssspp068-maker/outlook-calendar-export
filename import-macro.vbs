@@ -1,6 +1,6 @@
 Option Explicit
 
-Dim basPath, ol, ns, vbProj, vbComp, i, errNum, errDesc
+Dim basPath, ol, ns, vbProj, vbComp, i, errNum, errDesc, sh
 
 If WScript.Arguments.Count < 1 Then
   WScript.Echo "Need path to .bas file"
@@ -10,6 +10,14 @@ End If
 basPath = WScript.Arguments(0)
 
 On Error Resume Next
+
+' Force AccessVBOM before any Outlook COM start (install.bat should already set this).
+Set sh = CreateObject("WScript.Shell")
+sh.RegWrite "HKCU\Software\Microsoft\Office\16.0\Outlook\Security\AccessVBOM", 1, "REG_DWORD"
+sh.RegWrite "HKCU\Software\Microsoft\Office\16.0\Common\Security\AccessVBOM", 1, "REG_DWORD"
+sh.RegWrite "HKCU\Software\Microsoft\Office\15.0\Outlook\Security\AccessVBOM", 1, "REG_DWORD"
+sh.RegWrite "HKCU\Software\Microsoft\Office\15.0\Common\Security\AccessVBOM", 1, "REG_DWORD"
+Err.Clear
 
 Set ol = CreateObject("Outlook.Application")
 errNum = Err.Number: errDesc = Err.Description: Err.Clear
@@ -21,13 +29,13 @@ End If
 Set ns = ol.GetNamespace("MAPI")
 ns.Logon "", "", False, False
 Err.Clear
-WScript.Sleep 2000
+WScript.Sleep 3000
 
 Set vbProj = ol.VBE.ActiveVBProject
 errNum = Err.Number: errDesc = Err.Description: Err.Clear
 If errNum <> 0 Or vbProj Is Nothing Then
-  WScript.Echo "No access to Outlook VBA project."
-  WScript.Echo "Enable Trust access to the VBA project object model"
+  WScript.Echo "No access to Outlook VBA project / AccessVBOM still blocked."
+  WScript.Echo "Registry was set; domain GPO may override. Detail: " & errDesc
   On Error Resume Next
   ol.Quit
   WScript.Quit 2
