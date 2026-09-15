@@ -4,6 +4,7 @@ Option Explicit
 ' Outlook 2016 calendar meetings -> Excel.
 ' Run: Calendar ribbon button (install.bat + olkexplorer.officeUI)
 '      or Alt+F8 -> ExportManagerCalendarMeetings
+' Ribbon may pass Optional control; Core does the work.
 '
 ' Filters: uppercase DR word in subject; meetings with attendees;
 '          subject exclusions (suggested + custom ; or ,).
@@ -15,7 +16,17 @@ Option Explicit
 
 Private Const xlOpenXMLWorkbook As Long = 51
 
-Public Sub ExportManagerCalendarMeetings()
+Public Sub ExportManagerCalendarMeetings(Optional ByVal control As Variant)
+    ' Ribbon onAction (x1:ExportManagerCalendarMeetings) may pass IRibbonControl;
+    ' Optional keeps Alt+F8 working. Always surface errors instead of silent fail.
+    On Error GoTo RibbonFail
+    ExportManagerCalendarMeetingsCore
+    Exit Sub
+RibbonFail:
+    MsgBox RuMsgErrorPrefix() & CStr(Err.Number) & " " & Err.Description, vbCritical
+End Sub
+
+Private Sub ExportManagerCalendarMeetingsCore()
     Dim calendarFolder As Outlook.MAPIFolder
     Dim startDate As Date
     Dim endDate As Date
@@ -42,10 +53,11 @@ Public Sub ExportManagerCalendarMeetings()
         End If
     End If
 
+    ' Date InputBox first so ribbon click always shows visible UI
+    If Not AskDateRange(startDate, endDate) Then Exit Sub
+
     Set calendarFolder = PickCalendarFolder()
     If calendarFolder Is Nothing Then Exit Sub
-
-    If Not AskDateRange(startDate, endDate) Then Exit Sub
 
     If Not AskSubjectExclusions(exclusions) Then Exit Sub
 
@@ -87,10 +99,4 @@ Public Sub ExportManagerCalendarMeetings()
     Do While Not appt Is Nothing
         If TypeName(appt) = "AppointmentItem" Then
             If appt.Start >= startDate And appt.Start < DateAdd("d", 1, endDate) Then
-                subjectText = NzStr(appt.Subject)
-                If Not SubjectHasUppercaseDRWord(subjectText) Then
-                    If Not SubjectMatchesExclusions(subjectText, exclusions) Then
-                        If AppointmentHasAttendees(appt) Then
-                            CollectAttachmentInfo appt, attachNames, attachCount
-                            meetingLink = ExtractMeetingLinks(appt)
-                            xlSheet.Cells(row, 1).Value = su
+       
