@@ -1,4 +1,12 @@
-Function
+
+
+Private Function RuHdrDate() As String
+    RuHdrDate = H("0414043004420430")
+End Function
+
+Private Function RuHdrPlace() As String
+    RuHdrPlace = H("041C043504410442043E")
+End Function
 
 Private Function RuHdrLink() As String
     RuHdrLink = H("04210441044B043B043A0430")
@@ -76,5 +84,4 @@ Private Function RuMsgExclNo() As String
     RuMsgExclNo = H("041D04350442002020140020043F0443044104420430044F0020044104420440043E043A043000200442043E043B044C043A043E00200434043B044F002004410432043E0438044500200441043B043E0432")
 End Function
 
-Private Function RuMsgExclCancel() As String
-    RuMsgExclCancel = H("041E0442043C0435043D0430002020140020043F0440
+Private Function RuMsgExc
